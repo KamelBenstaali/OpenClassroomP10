@@ -15,7 +15,7 @@ Le projet est organisé selon l'arborescence suivante :
 - **`venv/`** : Environnement virtuel Python (à ne pas inclure dans les commits Git).
 
 ## Prochaines Étapes (MVP)
-1. **EDA et Modélisation** : Exploration des données et sélection de l'algorithme de recommandation optimal (cf. `Notebooks/` et `SOTA/`), et refaire l'EDA sur le dossier "clicks" et reconstruire la matrice user_item à partir du dossier et non pas de l'échantillon
+1. **EDA et Modélisation** : Exploration des données et sélection de l'algorithme de recommandation optimal (cf. `Notebooks/` et `SOTA/`)
 
 2. Implémenter les 4 techniques choisies de modélisation dans le dossier `SOTA/` qui sont:
 - Collaborative filtring

@@ -7,8 +7,8 @@
 - Nombre moyen d’interactions par utilisateur (2.66 interactions/user).
 - Distribution du nombre d’interactions par utilisateur (min, médiane, moyenne, max).
 - Visualisation 1 : histogramme du nombre d’interactions par utilisateur + boxplot associé.
-- Visualisation 2 : top 15 des articles les plus cliqués (barplot), avec affichage détaillé du top 5 et annotation du nombre de clics sur les barres. 
-- Note explicite sur la courte durée temporelle (47h35min) rendant les patterns temporels peu exploitables. 
+- Visualisation 2 : top 15 des articles les plus cliqués (barplot), avec affichage détaillé du top 5 et annotation du nombre de clics sur les barres.
+- Note explicite sur la courte durée temporelle (47h35min) rendant les patterns temporels peu exploitables.
 
 ## Sur `articles_metadata.csv` (métadonnées articles)
 
