@@ -1,8 +1,17 @@
 # État de l'Art : Les Systèmes de Recommandation
 
-Les systèmes de recommandation sont des algorithmes visant à suggérer des éléments pertinents (articles, films, produits) aux utilisateurs en fonction de leurs préférences explicites ou implicites. Ils sont divisés en plusieurs grandes familles d'approches.
+Les systèmes de recommandation sont des algorithmes visant à suggérer des éléments pertinents (articles, films, produits) aux utilisateurs en fonction de leurs préférences explicites ou implicites. 
 
-Ce document résume les principales techniques existantes (State of the Art - SOTA) : le filtrage basé sur le contenu, le filtrage collaboratif, et les approches hybrides.
+Ce document résume les principales techniques existantes (State of the Art - SOTA) qui seront implémentées et comparées dans notre projet "My Content" sur **l'intégralité de la base utilisateurs**.
+
+---
+
+## 0. L'Approche Basée sur la Popularité (Baseline)
+C'est la méthode la plus basique mais souvent indispensable. Elle consiste à recommander à tout le monde les articles les plus lus du moment.
+- **Formule classique :** Comptage pur du nombre de clics ou du nombre d'utilisateurs uniques par article.
+- **Formule avancée (Time Decay) :** On divise le score de clics par l'ancienneté de l'article (son âge) pour favoriser la nouveauté (un aspect critique dans le domaine de la presse).
+- **✅ Avantages :** Extrêmement rapide, résout instantanément le problème du démarrage à froid (Cold Start) pour les nouveaux utilisateurs.
+- **❌ Inconvénients :** Aucune personnalisation. Recommande strictement la même chose à tout le monde.
 
 ---
 
@@ -10,65 +19,58 @@ Ce document résume les principales techniques existantes (State of the Art - SO
 
 L'approche basée sur le contenu s'appuie sur les **caractéristiques des éléments (items)** et le profil de l'utilisateur. Le principe fondamental est : *"Recommander des articles similaires à ceux que l'utilisateur a aimés ou consultés par le passé."*
 
-### Fonctionnement :
-- **Représentation des items :** Chaque article est décrit par un vecteur de caractéristiques (mots-clés, catégories, ou des embeddings générés par des modèles de traitement du langage naturel comme Word2Vec, BERT, etc.).
-- **Profil utilisateur :** Un profil utilisateur est créé en agrégeant les caractéristiques des articles avec lesquels il a interagi.
-- **Calcul de similarité :** L'algorithme calcule une distance (souvent la *similarité cosinus*) entre le profil de l'utilisateur et les articles candidats.
+### Techniques que nous allons tester :
+- **Similarité Cosinus :** Mesure l'angle entre deux vecteurs (embeddings ACP) d'articles. C'est la référence pour l'analyse de textes.
+- **Distance Euclidienne :** Mesure la distance spatiale "à vol d'oiseau" entre deux vecteurs. Nous la comparerons à la similarité Cosinus pour voir si elle offre un meilleur temps de calcul ou une meilleure précision.
 
 ### ✅ Avantages :
-- **Indépendance vis-à-vis des autres utilisateurs :** Pas besoin d'une large base d'utilisateurs pour commencer à faire de bonnes recommandations.
-- **Pas de Cold Start (démarrage à froid) pour les nouveaux articles :** Dès qu'un nouvel article est publié, ses métadonnées ou embeddings permettent de le recommander instantanément.
-- **Transparence :** Les recommandations sont faciles à expliquer ("Parce que vous avez lu des articles sur la technologie...").
+- Pas de Cold Start pour les nouveaux articles : Dès qu'un nouvel article est publié, ses métadonnées ou embeddings permettent de le recommander.
+- Transparence et indépendance vis-à-vis du comportement des autres utilisateurs.
 
 ### ❌ Inconvénients :
-- **Bulle de filtres (Over-specialization) :** Le système enferme l'utilisateur dans ce qu'il connaît déjà et manque de "sérendipité" (incapacité à faire découvrir de nouvelles thématiques).
-- **Cold Start pour les nouveaux utilisateurs :** Sans historique de lecture, il est impossible de générer un profil pour un nouvel utilisateur.
+- **Bulle de filtres :** Manque de "sérendipité" (tendance à enfermer l'utilisateur dans les thématiques qu'il connaît déjà).
+- Cold Start pour les nouveaux utilisateurs (aucun historique sur lequel se baser).
 
 ---
 
 ## 2. Le Filtrage Collaboratif (Collaborative Filtering)
 
-Le filtrage collaboratif repose uniquement sur les **interactions passées (clics, notes, temps de lecture)** entre les utilisateurs et les items, sans avoir besoin de connaître le contenu des articles. Le principe est : *"Si deux utilisateurs ont eu le même comportement par le passé, ils auront probablement les mêmes goûts à l'avenir."*
+Le filtrage collaboratif repose uniquement sur les **interactions passées (clics, temps de lecture)**, sans chercher à comprendre le contenu des articles. Principe : *"Si deux utilisateurs ont eu le même comportement par le passé, ils auront probablement les mêmes goûts à l'avenir."*
 
-Cette approche se divise en deux sous-catégories principales :
+### Techniques que nous allons tester :
+**A. Memory-Based (KNN Users)**
+Utilise l'algorithme des K-plus proches voisins (K-Nearest Neighbors) directement sur la matrice pour trouver les utilisateurs qui te ressemblent mathématiquement, et te recommander ce qu'ils ont lu.
+- **Inconvénient :** Très coûteux en mémoire et en latence d'inférence sur de larges datasets.
 
-### A. Memory-Based (ou Neighborhood-Based)
-Ces méthodes utilisent directement la matrice d'interactions Utilisateurs-Items pour trouver des "voisins" via des mesures de similarité (Corrélation de Pearson, Cosinus).
-- **User-Based Collaborative Filtering (UBCF) :** On trouve des utilisateurs similaires à l'utilisateur cible (ses "voisins") et on lui recommande les articles que ces voisins ont aimés.
-- **Item-Based Collaborative Filtering (IBCF) :** On trouve des articles similaires à ceux que l'utilisateur a déjà lus (la similarité entre deux articles se basant sur le fait qu'ils ont été lus par les mêmes personnes). L'IBCF est souvent plus stable et scalable que l'UBCF.
-
-### B. Model-Based
-Au lieu de calculer des distances directes, ces méthodes construisent un modèle mathématique à partir de la matrice d'interactions (souvent très creuse/sparse) pour prédire les valeurs manquantes.
-- **Factorisation de Matrice (Matrix Factorization) :** Des algorithmes comme SVD (Singular Value Decomposition) ou ALS (Alternating Least Squares) décomposent la grande matrice d'interactions en deux matrices plus petites (vecteurs latents pour les utilisateurs et les items).
-- **Deep Learning :** Des approches comme les Autoencodeurs ou Neural Collaborative Filtering (NCF) capturent des relations non-linéaires complexes.
+**B. Model-Based (SVD et ALS)**
+Au lieu de calculer des distances directes à chaque requête, ces méthodes construisent un modèle mathématique abstrait (factorisation de matrices).
+- **SVD (Singular Value Decomposition) :** Modèle classique très performant, mais historiquement pensé pour des notes explicites (ex: 5 étoiles). Nous devrons simuler un score d'appréciation via un *preprocessing* pour l'utiliser avec de simples clics.
+- **ALS (Alternating Least Squares) :** Modèle massivement optimisé pour les données **implicites** (comme nos historiques de clics).
 
 ### ✅ Avantages :
-- **Sérendipité :** Permet à l'utilisateur de découvrir des articles complètement différents de ses lectures habituelles, car basés sur l'intelligence collective.
-- **Pas besoin de métadonnées :** Ne requiert aucune analyse du texte des articles.
+- **Sérendipité :** Permet des découvertes transversales inattendues grâce à l'intelligence collective (si les autres ont aimé, tu aimeras peut-être).
+- Pas besoin d'analyser ou de stocker le texte des articles.
 
 ### ❌ Inconvénients :
-- **Problème de la matrice creuse (Sparsity) :** Beaucoup d'articles ne sont lus que par un nombre infime d'utilisateurs.
-- **Cold Start global :** Impossible de recommander un nouvel article qui n'a jamais été lu (Cold Start Item), ni de recommander à un nouvel utilisateur sans historique (Cold Start User).
-- **Scalabilité :** Les méthodes basées sur la mémoire coûtent très cher en temps de calcul lorsque la base de données devient énorme.
+- Problème de la matrice creuse (Sparsity) et Cold Start complet pour les nouveaux articles non cliqués et les nouveaux utilisateurs.
 
 ---
 
 ## 3. Les Approches Hybrides
 
-Pour pallier les défauts respectifs du Content-Based (Bulle de filtre) et du Collaborative Filtering (Cold start des nouveaux articles), les systèmes de recommandation modernes combinent souvent les deux.
+Pour pallier les défauts respectifs du Content-Based (Bulle de filtre) et du Collaborative Filtering (Cold start), les systèmes modernes combinent plusieurs techniques.
 
-- **Combinaison pondérée :** On calcule séparément les recommandations des deux systèmes et on pondère les scores finaux.
-- **Cascade :** Le premier système filtre une large sélection d'articles, et le deuxième système affine ce sous-ensemble.
-- **Feature augmentation :** On injecte les représentations basées sur le contenu (comme les embeddings de vos articles) comme "features" supplémentaires dans un modèle de Collaborative Filtering complexe (ex: LightFM, Factorization Machines).
+### Technique que nous allons tester :
+- **Borda Count (Hybride Pondéré) :** Nous générerons des listes de recommandations avec nos différents modèles (ex: ALS + Content-Based + Popularité) et nous attribuerons des points pondérés (ex: 40% ALS / 40% Contenu / 20% Pop) à chaque article selon sa position dans les classements. L'article avec le meilleur score combiné final est recommandé.
 
 ---
 
-## 🎯 Conclusion & Application à notre projet MVP ("My Content")
+## 🎯 Conclusion & Stratégie de Benchmark
 
-Dans le cadre de votre application, nous disposons de deux ensembles de données clés :
-1. Les interactions (`clicks`) $\rightarrow$ Permettrait du **Collaborative Filtering**.
-2. Le contenu via les `articles_embeddings` $\rightarrow$ Permettrait du **Content-Based Filtering**.
+Dans notre projet MVP, **tous les algorithmes décrits ci-dessus seront soumis à un Benchmark sur l'intégralité des utilisateurs de la base de données**. 
 
-Pour une **architecture Serverless (Azure Functions)** avec des contraintes de mémoire et de temps de réponse pour un MVP, l'approche **Content-Based** avec recherche de similarité cosinus sur les embeddings réduits par ACP est souvent la solution technique la plus robuste pour démarrer, car :
-- Elle résout parfaitement le problème d'intégration des nouveaux articles.
-- Elle est très rapide à exécuter "à la volée" sans nécessiter de ré-entraîner de lourdes matrices mathématiques.
+Nous utiliserons un jeu de Train/Test rigoureux (méthode du *Leave-One-Out* chronologique) pour éviter la fuite de données, et nous mesurerons :
+1. **Les performances métiers :** Hit Ratio@5, MRR (Mean Reciprocal Rank), Couverture du catalogue (Coverage).
+2. **Les performances techniques (critiques pour Azure Functions) :** Temps de réponse (Latence), Taille de la RAM consommée par les fichiers prérequis (matrices, embeddings).
+
+Le modèle (ou le système hybride) offrant le meilleur compromis Pertinence / Latence sera sélectionné pour le déploiement.
