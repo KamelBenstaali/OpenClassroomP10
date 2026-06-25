@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_NAME: 'ton-nom-app-azure'   # REMPLACE par le vrai nom de ton Azure Function App
+  AZURE_FUNCTIONAPP_NAME: 'globonews-api-P10'   # REMPLACE par le vrai nom de ton Azure Function App
   AZURE_FUNCTIONAPP_PACKAGE_PATH: './AzureAPI'  # Le chemin vers le dossier de l'API
   PYTHON_VERSION: '3.12'                        # La version de Python utilisée
 

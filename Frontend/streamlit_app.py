@@ -81,8 +81,8 @@ st.markdown("""
 st.markdown('<h1 class="main-title">GloboNews AI</h1>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Votre moteur de recommandation intelligent</p>', unsafe_allow_html=True)
 
-# On suppose que l'Azure Function tournera sur le port 7071
-API_URL = "http://localhost:7071/api/recommend"
+# L'URL de production publique sur Azure Functions
+API_URL = "https://globonews-api-p10-evg7eza5gqfnendh.francecentral-01.azurewebsites.net/api/recommend"
 
 # Liste de profils pour la démo
 demo_users = {
