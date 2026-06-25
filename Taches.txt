@@ -1,9 +1,1 @@
-
-
-
-Benchmark final
-- Essayer de refaire le test sur 10000 users
-- Essayer de réaliser les tests en séparant les cas des users 
-(regrouper les users <4 clicks dans un cas , ….) 
-(ou calculer la métrique sur chaque user et l’afficher 
-un graphe pour déduire les perf sur les cas utilisateur)
+commencer la azure function
