@@ -8,28 +8,27 @@
 ## 2. Structure des Notebooks d'Expérimentation
 L'exploration algorithmique a été découpée en plusieurs notebooks spécialisés afin de garder un code propre, modulaire et d'isoler les benchmarks de chaque famille d'algorithmes :
 
-### 📓 `01_Collaboratives_models.ipynb`
-Ce notebook est dédié à la comparaison des algorithmes de filtrage collaboratif (qui se basent uniquement sur la matrice d'interactions Utilisateurs-Articles).  
-**Actions prévues :**
-- Implémentation d'un modèle **Memory-Based (KNN Users)**.
-- Implémentation du modèle **SVD** (en improvisant un score de rating via un preprocessing, par exemple en transformant le nombre de clics).
-- Utilisation du modèle **ALS** (Alternating Least Squares) optimisé pour l'Implicit Feedback.
-- Comparaison des performances de ces 3 techniques collaboratives.
+### 📓 `01_Collaborative_models.ipynb`
+Ce notebook est dédié à la recommandation par filtrage collaboratif (analyse de la matrice d'interactions Utilisateurs-Articles).
+**Travail réalisé :**
+- Création d'une matrice creuse (sparse matrix) optimisée en mémoire.
+- Entraînement et évaluation du modèle **SVD** (Surprise) avec adaptation des clics en notes (ratings).
+- Entraînement et évaluation du modèle **ALS** (Alternating Least Squares de la librairie `implicit`), spécialement conçu pour les données de feedback implicite.
+- **Résultat :** L'algorithme ALS s'est imposé grâce à ses excellentes performances de calcul (matrices creuses) et son Hit Ratio très satisfaisant.
 
 ### 📓 `02_Content_based_models.ipynb`
-Ce notebook explore la recommandation par le contenu, en se basant sur les caractéristiques (embeddings) des articles.  
-**Actions prévues :**
-- Utilisation de la **Similarité Cosinus** sur les embeddings ACP des articles (`articles_embeddings.pickle`).
-- Test de nouvelles distances, comme la distance **Euclidienne**, pour trouver les articles similaires.
-- Comparaison des métriques de performance et de temps de calcul (latence) entre les différentes formules de distance.
+Ce notebook explore la recommandation par le contenu, en se basant sur les caractéristiques vectorielles des articles.
+**Travail réalisé :**
+- Importation des plongements de mots (Word Embeddings) pré-entraînés fournis dans le dataset (`articles_embeddings.pickle`).
+- Réduction de dimension avec **PCA (Analyse en Composantes Principales)** pour réduire la taille des vecteurs de 250 à 50 dimensions (préservant plus de 85% de la variance).
+- Calcul de la **Similarité Cosinus** pour trouver mathématiquement les articles les plus proches sémantiquement du dernier article lu par l'utilisateur.
 
-### 📓 `03_Comparing_approachs.ipynb`
-Ce notebook est l'étape de synthèse, d'évaluation globale et d'analyse métier.  
-**Actions prévues :**
-- **Recherche sur la popularité (Cold Start) :** Tester différentes formules de popularité (ex: diviser le score par le nombre d'utilisateurs uniques ou amortir le score par l'âge/ancienneté de l'article).
-- **Benchmark Final (Train/Test) :** Rejouer le test d'évaluation avec toutes les approches gagnantes, mais sur **tous** les utilisateurs (au lieu de 100).
-- **Nouvelles métriques :** Intégration de nouvelles métriques (Hit Ratio@5, MRR, Couverture du catalogue) ainsi que les métriques techniques cruciales (Latence d'inférence, Taille de la matrice/modèle en mémoire).
-- **Segmentation des utilisateurs :** Séparer les cas d'utilisation. Calculer et afficher graphiquement les performances de chaque modèle selon le profil de l'utilisateur (ex: isoler les utilisateurs ayant cliqué < 4 fois pour voir si l'algorithme Hybride ou la Popularité performent mieux que l'ALS).
+### 📓 `03_Hybrid_models.ipynb`
+Ce notebook est l'étape de synthèse : il fusionne les modèles précédents pour créer le "Cerveau" final de l'application et régler le problème majeur des nouveaux utilisateurs.
+**Travail réalisé :**
+- **Algorithme de Popularité (Time Decay) :** Création d'un système de secours (Fallback) pour le Cold-Start. Les articles les plus cliqués voient leur score baisser au fil des jours (Time Decay) pour éviter de toujours recommander de vieux articles.
+- **Le Modèle Hybride :** Création de la fonction maîtresse qui appelle ALS (poids: 0.74), le Content-Based (poids: 0.19), et la Popularité (poids: 0.15). Les scores sont normalisés (MinMaxScaler) et combinés.
+- **Exportation pour la Production :** Sauvegarde des matrices facteurs ALS (`.npy`), des dictionnaires de mapping (`.pkl`), et des données PCA (`.pickle`) dans le dossier `Generated/` pour être ingérés par l'API Serverless Azure.
 
 ---
-*(Note : Le fichier `04_modelisation.ipynb` contient nos premières ébauches exploratoires et n'est plus utilisé activement dans ce pipeline de benchmark structuré).*
+*(Note : Le fichier `04_modelisation.ipynb` contenait de premières ébauches exploratoires et n'est plus utilisé activement dans ce pipeline de benchmark structuré).*

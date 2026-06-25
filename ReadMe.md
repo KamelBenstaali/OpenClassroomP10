@@ -1,24 +1,45 @@
-# Projet P10 - My Content : Système de Recommandation
+# Projet P10 - GloboNews : Système de Recommandation Hybride
 
-Bienvenue dans le dépôt du projet My Content. L'objectif de ce projet est de développer un MVP (Minimum Viable Product) d'une application de recommandation d'articles utilisant une architecture serverless (Azure Functions).
+Bienvenue dans le dépôt du projet GloboNews (Start-up My Content). L'objectif de ce projet est de développer un MVP (Minimum Viable Product) d'une application de recommandation d'articles utilisant une intelligence artificielle hybride et une architecture cloud serverless (Azure Functions).
 
-## Structure du Projet
+## Architecture Globale
+
+Le projet se décompose en 3 grandes briques :
+1. **Machine Learning (Notebooks) :** Benchmark, modélisation et création de l'algorithme Hybride (ALS + Content-Based + Time Decay).
+2. **Backend Serverless (AzureAPI) :** Une API REST Python déployée sur Azure Functions qui charge les modèles pré-entraînés et calcule les recommandations en temps réel.
+3. **Frontend (Streamlit) :** Une application web interactive simulant l'expérience utilisateur finale.
+
+## Structure du Dépôt
 
 Le projet est organisé selon l'arborescence suivante :
 
-- **`Data/`** : Ce dossier contient les jeux de données bruts et traités nécessaires au projet (historique de clics, informations sur les articles, embeddings pré-calculés, etc.).
-- **`Détails_mission/`** : Comprend la documentation concernant la mission globale, notamment le plan d'action détaillé et les spécifications attendues pour le système et l'application.
-- **`Generated/`** : Dossier utilisé pour stocker les fichiers ou les modèles générés automatiquement lors des différentes étapes de traitement de données ou d'entraînement.
-- **`Notebooks/`** : Contient les notebooks Jupyter utilisés pour l'Analyse Exploratoire des Données (EDA), la préparation des données (réduction de dimension via ACP), et les premières expérimentations de modélisation.
-- **`SOTA/`** : *(State of the Art)* Dossier dédié à l'exploration des différentes techniques de systèmes de recommandation (Popularité, Filtrage Collaboratif, Content-Based et approches hybrides).
-- **`requirements.txt`** : Liste de toutes les dépendances Python nécessaires à l'exécution de ce projet.
-- **`venv/`** : Environnement virtuel Python (à ne pas inclure dans les commits Git).
+- **`AzureAPI/`** : Code source de l'API Serverless (Azure Functions). Contient le fichier `function_app.py` et le dossier `data/` abritant les matrices du modèle (Numpy/Pickle).
+- **`Frontend/`** : Code source de l'interface utilisateur web développée avec `streamlit_app.py`.
+- **`.github/workflows/`** : Pipeline CI/CD (GitHub Actions) pour le déploiement continu automatisé vers Microsoft Azure.
+- **`Notebooks/Modelisation/`** : Contient tous les notebooks Jupyter d'entraînement et d'évaluation (Collaboratif, Content-Based, et Hybride).
+- **`Guides/`** : Documentation et tutoriels techniques pour le déploiement et la gestion d'Azure Functions.
+- **`Détails_mission/`** : Documentation concernant les spécifications initiales et le périmètre du projet.
 
-## Prochaines Étapes (MVP)
-1. **EDA et Modélisation** : Exploration des données et sélection de l'algorithme de recommandation optimal (cf. `Notebooks/` et `SOTA/`)
+*(Note : Les dossiers `Data/` et `Generated/` contenant les datasets lourds bruts sont exclus de Git via le `.gitignore`, tout comme les environnements virtuels `.venv`).*
 
-2. Implémenter les 4 techniques choisies de modélisation dans le dossier `SOTA/` qui sont:
-- Collaborative filtring
-- Content based filtring
-- Popularity
-- Hybrid
+## Lancement en Local
+
+### 1. Démarrer l'API (Backend)
+```bash
+cd AzureAPI
+func start
+```
+L'API écoutera sur `http://localhost:7071/api/recommend`.
+
+### 2. Démarrer l'Interface (Frontend)
+Dans un nouveau terminal :
+```bash
+cd Frontend
+streamlit run streamlit_app.py
+```
+L'application web s'ouvrira sur `http://localhost:8501`.
+
+## Déploiement et CI/CD
+
+Ce projet intègre Git LFS pour le stockage des artefacts de Machine Learning.
+Le pipeline CI/CD configuré via GitHub Actions permet de compiler et déployer automatiquement l'API sur Microsoft Azure à chaque "push" sur la branche `main`.

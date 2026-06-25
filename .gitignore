@@ -1,6 +1,14 @@
+# Environnements virtuels
+.venv/
 venv/
-.DS_Store
-Data/
-Détails_mission/
-Generated/
+env/
+__pycache__/
 
+# Dossier des fichiers bruts et générés en double (Trop lourd pour GitHub)
+Generated/
+Data/
+
+# Fichiers de configuration locale Mac/Azure
+.DS_Store
+local.settings.json
+.vscode/

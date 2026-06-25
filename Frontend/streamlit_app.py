@@ -84,8 +84,19 @@ st.markdown('<p class="subtitle">Votre moteur de recommandation intelligent</p>'
 # On suppose que l'Azure Function tournera sur le port 7071
 API_URL = "http://localhost:7071/api/recommend"
 
-# Champ de saisie
-user_id = st.number_input("Entrez votre Numéro d'Utilisateur (User ID) :", min_value=1, step=1, value=42)
+# Liste de profils pour la démo
+demo_users = {
+    "👤 Utilisateur 0 (Profil avec un bel historique)": 0,
+    "👤 Utilisateur 42 (Lecteur intermédiaire)": 42,
+    "👤 Utilisateur 25 (Lecteur occasionnel)": 25,
+    "👻 Nouvel Utilisateur (Cold-Start / Inconnu)": 999999
+}
+
+selected_label = st.selectbox(
+    "Choisissez un profil pour la démonstration :",
+    options=list(demo_users.keys())
+)
+user_id = demo_users[selected_label]
 
 # Bouton déclencheur
 if st.button("🚀 Découvrir mes recommandations"):
@@ -102,11 +113,15 @@ if st.button("🚀 Découvrir mes recommandations"):
                 st.success("✨ Voici vos recommandations sur mesure !")
                 
                 # Affichage des cartes avec le design CSS
-                for i, art_id in enumerate(recos):
+                for item in recos:
+                    art_id = item.get("article_id")
+                    score = item.get("score")
+                    percent = round(score * 100, 1)
+                    
                     st.markdown(f"""
                         <div class="article-card">
                             <h3 style="margin-top:0; margin-bottom:5px; color:#2c3e50;">📰 Article n°{art_id}</h3>
-                            <p style="color:#666; margin:0;">Sélectionné par le modèle hybride | Pertinence : {99 - i}%</p>
+                            <p style="color:#666; margin:0;">Sélectionné par le modèle | Pertinence : {percent}%</p>
                         </div>
                     """, unsafe_allow_html=True)
             else:
