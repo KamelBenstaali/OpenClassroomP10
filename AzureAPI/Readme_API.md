@@ -3,7 +3,7 @@
 Ce répertoire contient le code source de l'API de recommandation d'articles pour la start-up GloboNews. L'API est construite avec le framework Serverless **Azure Functions** (Python).
 
 ## Fonctionnement de l'API
-L'API implémente un système de recommandation hybride robuste :
+L'API implémente un système de recommandation hybride robuste qui combine :
 1. **Filtrage Collaboratif (ALS) :** Utilise la librairie `implicit` pour calculer la proximité entre le lecteur et les articles selon la matrice d'interactions.
 2. **Recommandation par le Contenu (CB) :** Utilise la Similarité Cosinus sur une version compressée (PCA) des plongements sémantiques (Embeddings) des articles.
 3. **Popularité (Time Decay) :** Un système de Fallback mathématique (Cold-Start) pour les nouveaux utilisateurs, qui propose les articles les plus cliqués avec un système d'amortissement selon l'âge de l'article.
