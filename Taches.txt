@@ -1,1 +1,6 @@
-commencer la azure function
+- ajouter la metrique MRR et le coverage du catalogue
+- gerer le pass de  la boucle SVD
+- revoir le code de SVD
+      (piste:)
+      all_items_raw = list(trainset_suprise._raw2inner_id_items.keys()) 
+      prediction = [blabla.predict for item in all_items_raw]
