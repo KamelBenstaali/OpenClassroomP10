@@ -5,3 +5,4 @@ scipy
 implicit
 scikit-learn
 pyarrow
+azure-storage-blob

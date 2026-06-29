@@ -3,12 +3,14 @@ import logging
 import json
 import pickle
 import os
+import io
 import numpy as np
 import pandas as pd
 import implicit
 import scipy.sparse as sparse
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MinMaxScaler
+from azure.storage.blob import BlobServiceClient
 
 # Modèle de programmation V2
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
@@ -16,55 +18,64 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 # ==========================================
 # 1. CHARGEMENT GLOBAL DES MODÈLES (COLD START)
 # ==========================================
-# Cela s'exécute UNE SEULE FOIS au démarrage du serveur Azure
-DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
-logging.info(f"Chargement des modèles depuis {DATA_DIR}...")
+logging.info("Démarrage du Cold Start : Téléchargement des modèles depuis Azure Blob Storage...")
+
+# On récupère la chaîne de connexion depuis les variables d'environnement d'Azure
+# Assure-toi d'ajouter 'AZURE_STORAGE_CONNECTION_STRING' dans ton portail Azure
+CONNECTION_STRING = os.environ.get('AZURE_STORAGE_CONNECTION_STRING')
+CONTAINER_NAME = "models" # Nom du conteneur dans ton Blob Storage
 
 try:
+    if not CONNECTION_STRING:
+        raise ValueError("La variable d'environnement AZURE_STORAGE_CONNECTION_STRING est manquante !")
+        
+    blob_service_client = BlobServiceClient.from_connection_string(CONNECTION_STRING)
+    container_client = blob_service_client.get_container_client(CONTAINER_NAME)
+    
+    def load_blob_to_memory(blob_name):
+        logging.info(f"Téléchargement de {blob_name}...")
+        return container_client.download_blob(blob_name).readall()
+
     # 1. Historiques Utilisateurs
-    with open(os.path.join(DATA_DIR, "user_histories_dict.pkl"), "rb") as f:
-        user_histories_dict = pickle.load(f)
+    user_histories_dict = pickle.loads(load_blob_to_memory("user_histories_dict.pkl"))
         
     # 2. ALS Model & Mappings
-    user_factors = np.load(os.path.join(DATA_DIR, "als_user_factors.npy"))
-    item_factors = np.load(os.path.join(DATA_DIR, "als_item_factors.npy"))
+    user_factors = np.load(io.BytesIO(load_blob_to_memory("als_user_factors.npy")))
+    item_factors = np.load(io.BytesIO(load_blob_to_memory("als_item_factors.npy")))
+    
     model_als = implicit.als.AlternatingLeastSquares(factors=50)
     model_als.user_factors = user_factors
     model_als.item_factors = item_factors
     
-    with open(os.path.join(DATA_DIR, "als_user_mapping.pkl"), "rb") as f:
-        user_array = pickle.load(f)
-    with open(os.path.join(DATA_DIR, "als_item_mapping.pkl"), "rb") as f:
-        item_array = pickle.load(f)
+    user_array = pickle.loads(load_blob_to_memory("als_user_mapping.pkl"))
+    item_array = pickle.loads(load_blob_to_memory("als_item_mapping.pkl"))
         
     real_to_internal_user = {real_id: idx for idx, real_id in enumerate(user_array)}
     real_to_internal_item = {real_id: idx for idx, real_id in enumerate(item_array)}
     internal_to_real_item = item_array
     
     # 3. Content-Based (PCA Embeddings)
-    with open(os.path.join(DATA_DIR, "articles_embeddings_pca.pickle"), "rb") as f:
-        embeddings_pca = pickle.load(f)
+    embeddings_pca = pickle.loads(load_blob_to_memory("articles_embeddings_pca.pickle"))
         
     # 4. Popularité
-    popularity_df = pd.read_parquet(os.path.join(DATA_DIR, "articles_popularity_time_decay.parquet"))
+    popularity_df = pd.read_parquet(io.BytesIO(load_blob_to_memory("articles_popularity_time_decay.parquet")))
     dict_popularity = dict(zip(popularity_df['click_article_id'], popularity_df['time_decay_score']))
     
     # 5. Poids Hybrides (Optuna)
     try:
-        with open(os.path.join(DATA_DIR, "hybrid_weights.json"), "r") as f:
-            weights = json.load(f)
-            WEIGHT_ALS = weights.get('weight_als', 0.7447)
-            WEIGHT_CB = weights.get('weight_cb', 0.1946)
-            WEIGHT_POP = weights.get('weight_pop', 0.1547)
-    except FileNotFoundError:
-        # Fallback de sécurité si le fichier json n'est pas là
+        weights_data = load_blob_to_memory("hybrid_weights.json")
+        weights = json.loads(weights_data)
+        WEIGHT_ALS = weights.get('weight_als', 0.7447)
+        WEIGHT_CB = weights.get('weight_cb', 0.1946)
+        WEIGHT_POP = weights.get('weight_pop', 0.1547)
+    except Exception:
         WEIGHT_ALS = 0.7447
         WEIGHT_CB = 0.1946
         WEIGHT_POP = 0.1547
 
-    logging.info("✅ Chargement terminé !")
+    logging.info("✅ Tous les modèles ont été téléchargés en RAM avec succès !")
 except Exception as e:
-    logging.error(f"❌ Erreur lors du chargement des modèles : {str(e)}")
+    logging.error(f"❌ Erreur critique lors du téléchargement depuis le Blob Storage : {str(e)}")
 
 # ==========================================
 # 2. MOTEURS ISOLÉS
