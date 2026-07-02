@@ -1,3 +1,4 @@
+# Nom du projet: Réalisez une application de recommandation de contenu
 # Contexte
 My Content est une start-up qui veut encourager la lecture en **recommandant des contenus** pertinents pour ses utilisateurs. 
 Vous êtes le CTO et cofondateur de la start-up avec Samia qui est CEO. Vous êtes en pleine construction d’un premier MVP qui prendra la forme d’une application.
@@ -53,7 +54,7 @@ Livrables
 3. Un **support de présentation** (**PowerPoint ou équivalent**, sauvegardé au format **pdf**, **15 à 25 slides**), contenant une brève **description fonctionnelle de l’application**, une présentation des **différents modèles analysés** et de leurs **avantages et inconvénients**, un **schéma de l’architecture retenue**, une présentation du **système de recommandation utilisé** et un **schéma de l’architecture cible** permettant de prendre en compte la création **de nouveaux utilisateurs et de nouveaux articles**.
     * Ce livrable vous permettra de présenter votre travail à Samia.
 
-Soutenance
+# Soutenance
 Pendant la soutenance, l’évaluateur jouera le rôle de Samia, la cofondatrice de My Content. Vous lui présenterez l’ensemble de votre travail.
 * Présentation (20 minutes) 
     * des **différentes approches de modélisation** testées (10 minutes),

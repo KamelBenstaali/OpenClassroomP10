@@ -4,9 +4,10 @@ venv/
 env/
 __pycache__/
 
-# Dossier des fichiers bruts et générés en double (Trop lourd pour GitHub)
+# Fichiers de données (Trop lourds pour GitHub)
 Generated/
 Data/
+AzureAPI/data/
 
 # Fichiers de configuration locale Mac/Azure
 .DS_Store

@@ -36,8 +36,7 @@ Comment mesure-t-on le succès de cet algorithme ?
 * **Entraînement vs Inférence :** L'algorithme est-il lent à entraîner ? Est-il rapide pour servir une recommandation en temps réel ?
 * **Complexité :** Comment se comporte-t-il si on passe de 10 000 à 10 millions d'utilisateurs/items ?
 
-### 8. Cas d'usage Typiques & Exemples réels
-* **Quand l'utiliser ?** (ex: Recommandation d'articles d'actualités fraîchement publiés = Content-based. Recommandation de films sur Netflix = Hybrid/Collaboratif).
+
 
 ### 9. Bibliothèques et Outils (Implémentation)
 * **Quelles librairies Python utiliser ?** (ex: `scikit-learn` pour la Similarité Cosinus, `Gensim` pour LDA, `Surprise` pour le filtrage collaboratif classique, `LightFM`, `TensorFlow Recommenders`).

@@ -1,32 +1,40 @@
+# Pipeline de Déploiement Continu (CI/CD) pour l'API Azure Functions
+# Ce workflow met à jour automatiquement le code de l'API sur le cloud Azure.
 name: Deploy Python project to Azure Function App
 
 on:
   push:
     branches: ["main"]
+    # 🎯 Se déclenche UNIQUEMENT si des fichiers du dossier AzureAPI sont modifiés
     paths:
       - 'AzureAPI/**'
+  # Permet également de lancer le workflow manuellement depuis l'interface GitHub
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_NAME: 'globonews-api-P10'  
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: './AzureAPI'  
-  PYTHON_VERSION: '3.12'                       
+  AZURE_FUNCTIONAPP_NAME: 'globonews-api-P10'    # Nom exact de la Function App sur le portail Azure
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: './AzureAPI'   # Chemin vers le dossier contenant le backend
+  PYTHON_VERSION: '3.12'                         # Version de Python utilisée par l'environnement Azure
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
     - name: 'Checkout GitHub Action'
+      # 📥 Étape 1 : Télécharge le code source de notre repo sur le serveur temporaire GitHub
       uses: actions/checkout@v4
       with:
         lfs: true
 
     - name: Setup Python ${{ env.PYTHON_VERSION }} Environment
+      # 🐍 Étape 2 : Installe la bonne version de Python sur le serveur
       uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
     - name: 'Resolve Project Dependencies Using Pip'
+      # 📦 Étape 3 : Installe les librairies du requirements.txt (NumPy, Pandas, Implicit, etc.)
+      # Les installe dans le sous-dossier spécial ".python_packages" attendu par Azure
       shell: bash
       run: |
         pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
@@ -35,11 +43,13 @@ jobs:
         popd
 
     - name: 'Login to Azure'
+      # 🔑 Étape 4 : Authentification sécurisée sur Azure via un secret stocké dans les settings GitHub
       uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: 'Run Azure Functions Action'
+      # 🚀 Étape 5 : Compilation finale et push du code vers le cloud Azure
       uses: Azure/functions-action@v1
       id: fa
       with:

@@ -32,9 +32,7 @@
 * **Entraînement vs Inférence :** Lourds. Les systèmes en cascade peuvent optimiser l'inférence (le premier filtre rapide réduit le nombre d'items avant de passer au modèle complexe).
 * **Complexité :** L'architecture système devient le vrai défi (orchestration de micro-services souvent nécessaire).
 
-### 8. Cas d'usage Typiques & Exemples réels
-* **Netflix :** Combine le filtrage collaboratif (historique des utilisateurs) avec du filtrage basé sur le contenu (acteurs, réalisateurs, genres) et des méthodes de deep learning.
-
-### 9. Bibliothèques et Outils (Implémentation)
+### 8. Bibliothèques et Outils (Implémentation)
 * `LightFM` (Excellente librairie Python qui implémente un hybride Factorisation de Matrice + Content-based).
 * `TensorFlow Recommenders` (TFRS permet de créer facilement des architectures hybrides complexes avec des réseaux de neurones).
+* Fonction personnalisée combinant nos fonctions de recommandation crées (ce qu'on va faire pour ce projet).

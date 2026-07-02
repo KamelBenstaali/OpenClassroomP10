@@ -1,62 +1,196 @@
 # 🎤 Script Détaillé de Soutenance : GloboNews
 
-Ce document contient le discours "mot pour mot" (ou presque) que tu peux utiliser lors de ta soutenance, réparti slide par slide.
+Ce document contient l'organisation de ta présentation slide par slide.
+Pour chaque slide, tu trouveras ce que tu dois **écrire sur la présentation** (très synthétique) et ce que tu dois **dire à l'oral** (ton discours).
+
+--
+
+## Plan de présentation
+- Contexte & Mission
+- Jeu de données
+  - Présentation des differents types de fichiers
+  - Aborder la structure des fichiers des cliques et des articles
+  - Présenter des analyses EDA
+- Modélisations
+  - Approche d'évaluation et métriques.
+  - benchmark des approches Filtrage collaboratif
+    - presentation des differents models
+    - performances
+    - choix retenu
+  - benchmark des approches Approche sémantique
+    - presentation des differents models
+    - performances
+    - choix retenu
+  - L'Hybridation et les Leçons Apprises
+    - Popularité (comment le scoring popularité est mis en place)
+    - Comment les coefficients des approches ont été choisies
+    - performances
+
+
+
+- Architecture Technique & Démonstration
+  - Back-End : API Serverless (Azure Functions) -> Scalabilité & Coûts réduits.
+  - Front-End : Application Streamlit moderne.
+  - Résilience : Système de Fallback intégré en cas de panne de l'API.
+  - *(Insérer le Schéma de l'Architecture Retenue)*
+  - *(Capture d'écran / Démo de l'app)*
+
+
+- Architecture Cible & Perspectives
+  - Back-End : API Serverless (Azure Functions) -> Scalabilité & Coûts réduits.
+  - Front-End : Application Streamlit moderne.
+  - Résilience : Système de Fallback intégré en cas de panne de l'API.
+  - *(Insérer le Schéma de l'Architecture Retenue)*
+  - *(Capture d'écran / Démo de l'app)*
+
+
+- Conclusion
+
+
+( ce n'est pas le dernire version des slides, ce sont justes un brouillon de start seulement pour commencer à rediger le powerpoint suivant le plan de présentation ci-dessus)
+
+
+## Slide 1 : Sommaire (table des matières)
+- Contexte & Mission
+- Jeu de données
+...
 
 ---
 
-## Slide 1 : Introduction & Contexte (Titre)
-**Ce qu'il faut dire :**
-> "Bonjour à tous. Je suis ravi de vous présenter aujourd'hui le résultat de mon travail pour GloboNews. 
-> Comme vous le savez, GloboNews est un acteur majeur de l'actualité en ligne. Mais aujourd'hui, le défi des médias n'est plus seulement de produire du contenu, c'est de capter et de conserver l'attention des lecteurs face à ce qu'on appelle l'infobésité. 
-> Si un lecteur arrive sur notre portail et ne trouve pas immédiatement un article qui l'intéresse, il part. Mon objectif pour cette mission était donc clair : concevoir un Moteur de Recommandation (MVP) capable de suggérer en temps réel les 5 articles les plus pertinents pour chaque utilisateur."
+## Slide 2 : Introduction & Contexte (Titre)
+
+**Contenu affiché sur la Slide :**
+* Projet : Conception d'un système de recommandation d'articles (MVP)
+* Entreprise : GloboNews
+* Objectif : Capter et conserver l'attention des lecteurs face à l'infobésité
+* Solution : Suggérer en temps réel le Top 5 des articles pertinents
+
+**Speech (À dire à l'oral) :**
+* Bonjour à tous, je suis ravi de vous présenter le résultat de mon travail pour GloboNews.
+* Le défi actuel des médias n'est plus seulement de produire du contenu, c'est de retenir l'attention face à la masse d'informations.
+* Si un lecteur ne trouve pas immédiatement ce qui l'intéresse, il quitte le portail.
+* Mon objectif pour cette mission était donc de concevoir un Moteur de Recommandation (MVP) capable de suggérer en temps réel les 5 articles les plus pertinents pour chaque utilisateur.
 
 ---
 
-## Slide 2 : Exploration des Données (EDA)
-**Ce qu'il faut dire :**
-> "Pour construire ce moteur, j'ai d'abord analysé notre matière première : les historiques de clics et les métadonnées des articles.
-> Le premier grand enseignement de mon analyse exploratoire, c'est la confirmation d'une loi de Pareto très forte : une infime minorité d'articles monopolise la grande majorité des lectures. Cela signifie que la 'popularité' joue un rôle énorme.
-> Ensuite, pour comprendre le 'sujet' des articles, j'ai utilisé les embeddings fournis. Cependant, manipuler des matrices de 250 dimensions ralentissait énormément les calculs. J'ai donc appliqué une réduction de dimension via une ACP (Analyse en Composantes Principales) pour compresser l'ADN mathématique de nos articles en 50 dimensions, ce qui a accéléré les temps de calcul de manière drastique sans perdre la sémantique de base."
+## Slide 3 : Exploration des Données (EDA) & Optimisation
+
+**Contenu affiché sur la Slide :**
+* Chiffres clés des interactions : Seulement 2.66 clics en moyenne par utilisateur.
+* Sparsité extrême : La matrice Utilisateurs-Articles est vide à 99.18%.
+* Loi de Pareto : Une minorité d'articles concentre la majorité des lectures (Popularité cruciale).
+* Approche sémantique : Utilisation des Embeddings (ADN mathématique des articles).
+* Optimisation (PCA) : Réduction de 250 à 50 dimensions.
+* Résultat : Accélération drastique des calculs sans perte sémantique.
+
+**Speech (À dire à l'oral) :**
+* Pour construire ce moteur, j'ai d'abord analysé les historiques de clics et les métadonnées des articles.
+* Le premier constat alarmant est le très faible nombre d'interactions : un utilisateur clique en moyenne sur seulement 2.6 articles. 
+* Conséquence directe : notre matrice utilisateur-article a une sparsité de plus de 99.18% ! Nous faisons face à un énorme problème de "Cold-Start" (démarrage à froid).
+* J'ai aussi remarqué la confirmation d'une loi de Pareto très forte : peu d'articles monopolisent les lectures, ce qui prouve l'importance d'utiliser un algorithme basé sur la "popularité" pour combler ce manque d'historique.
+* Ensuite, pour comprendre le sujet des articles, j'ai utilisé les embeddings.
+* Cependant, manipuler 250 dimensions ralentissait trop les calculs. J'ai donc appliqué une ACP pour compresser l'information en 50 dimensions.
+* Cela a permis d'accélérer drastiquement l'API tout en gardant le sens des articles, nous permettant de respecter les limites de coût du Cloud.
 
 ---
 
 ## Slide 3 : L'Architecture Modulaire (Les 3 Cerveaux)
-**Ce qu'il faut dire :**
-> "Plutôt que de tout miser sur un seul algorithme, j'ai pris la décision d'architecture de construire un moteur modulaire composé de trois 'cerveaux' complémentaires.
-> 
-> Le premier cerveau, c'est l'**ALS (Filtrage Collaboratif)**. C'est notre champion des habitudes. Il repère les schémas complexes du type 'Les utilisateurs qui ont lu A ont aussi lu B'. Il est extrêmement performant pour nos utilisateurs fidèles, qu'on appelle les 'Warm Users'. Mais il a un défaut : le Cold-Start. Il est aveugle face aux nouveaux articles.
-> 
-> Le deuxième cerveau, c'est le **Content-Based (Similarité Cosinus)**. Il est purement sémantique. C'est lui qui sauve nos nouveaux articles : si un article vient de sortir mais qu'il parle d'IA, il le recommandera à nos amateurs d'IA en se basant sur le dernier article qu'ils ont lu.
-> 
-> Enfin, le troisième cerveau, c'est la **Popularité avec un facteur de déclin temporel (Time Decay)**. C'est notre filet de sécurité. Si un tout nouvel utilisateur arrive sur le site, sans aucun historique, on lui proposera simplement ce qui fait le buzz en ce moment."
+
+**Contenu affiché sur la Slide :**
+* Moteur Modulaire : Combinaison de 3 algorithmes.
+* 1. ALS (Filtrage Collaboratif) : Le champion des habitudes (Idéal pour "Warm Users").
+* 2. Content-Based (Cosinus) : Approche sémantique (Gère le "Cold-Start" des nouveaux articles).
+* 3. Popularité (Time Decay) : Le filet de sécurité (Pour les tout nouveaux utilisateurs).
+
+**Speech (À dire à l'oral) :**
+* Plutôt que de tout miser sur un seul algorithme, j'ai construit un moteur modulaire composé de trois "cerveaux".
+* Le premier, l'ALS (Collaboratif), repère les schémas complexes ("ceux qui ont lu A lisent B"). Il est parfait pour nos utilisateurs réguliers, mais aveugle face aux nouveaux articles.
+* Le deuxième, le Content-Based, est purement sémantique. Si un article vient de sortir, il le recommandera en se basant sur le dernier article lu par l'utilisateur.
+* Enfin, le troisième cerveau est la Popularité avec un déclin temporel. C'est notre filet de sécurité pour proposer ce qui fait le buzz aux tout nouveaux utilisateurs sans historique.
 
 ---
 
 ## Slide 4 : L'Hybridation et les Leçons Apprises
-**Ce qu'il faut dire :**
-> "L'idée finale était de fusionner ces trois signaux.
-> 
-> Mais la Data Science est pleine de pièges, et j'ai rencontré un cas d'école très intéressant pendant la construction de mon script d'évaluation : le *Reverse Data-Leakage*. 
-> Lors de mes premiers tests, j'avais obtenu un Hit Ratio de 0.00 % ! Après investigation, j'ai réalisé que pour empêcher le modèle de recommander des articles déjà lus, je lui passais l'historique complet de l'utilisateur... qui contenait l'article cible qu'il devait deviner ! J'avais littéralement ordonné à l'algorithme d'exclure la bonne réponse. Cela m'a rappelé l'importance d'une séparation Leave-One-Out absolument stricte.
-> 
-> Une fois ce bug corrigé, je voulais pondérer mes 3 cerveaux de manière scientifique. Plutôt que de choisir des poids au hasard, j'ai développé une boucle d'optimisation bayésienne avec **Optuna**. Optuna a trouvé la combinaison parfaite *(Tu pourras citer ici tes 3 chiffres exacts)* qui maximise le Hit Ratio global."
+
+**Contenu affiché sur la Slide :**
+* Défi rencontré : Le "Reverse Data-Leakage" (Biais d'évaluation).
+* Solution : Séparation Leave-One-Out stricte.
+* Optimisation Scientifique : Utilisation de l'algorithme bayésien Optuna.
+* Objectif : Trouver les poids parfaits pour maximiser le Hit Ratio global.
+
+**Speech (À dire à l'oral) :**
+* L'idée finale était de fusionner ces trois signaux.
+* Mais j'ai rencontré un cas d'école intéressant : le "Reverse Data-Leakage". Lors des premiers tests, le modèle avait 0% de réussite car je lui ordonnais d'exclure l'article qu'il devait deviner !
+* Cela m'a rappelé l'importance d'une séparation stricte de l'historique lors des tests.
+* Une fois le bug corrigé, je voulais pondérer mes 3 algorithmes scientifiquement, et pas au hasard.
+* J'ai donc utilisé une optimisation bayésienne avec Optuna, qui a trouvé la combinaison parfaite de coefficients pour maximiser les bonnes recommandations.
 
 ---
 
-## Slide 5 : Déploiement et Interface (Démo)
-**Ce qu'il faut dire :**
-> "Un modèle n'a de valeur que s'il est utilisable. J'ai donc packagé notre moteur hybride sous forme d'une API Serverless en utilisant **Azure Functions**. Ce choix permet d'avoir une infrastructure qui 'scale' automatiquement en fonction du trafic de GloboNews, tout en minimisant les coûts.
-> 
-> Et pour que vous puissiez visualiser le résultat, j'ai développé une interface moderne avec Streamlit. *(Montrer une capture d'écran ou faire la démo)*. 
-> Une fonctionnalité clé de cette interface est sa résilience : si l'API vient à tomber en panne, l'interface le détecte et bascule intelligemment sur un plan de secours (Fallback) en affichant les articles tendances pré-calculés. L'utilisateur n'est donc jamais face à un écran vide."
+## Slide 5 : Architecture Technique & Démonstration
+
+**Contenu affiché sur la Slide :**
+* Back-End : API Serverless (Azure Functions) -> Scalabilité & Coûts réduits.
+* Front-End : Application Streamlit moderne.
+* Résilience : Système de Fallback intégré en cas de panne de l'API.
+* *(Insérer le Schéma de l'Architecture Retenue)*
+* *(Capture d'écran / Démo de l'app)*
+
+**Speech (À dire à l'oral) :**
+* J'ai packagé ce moteur hybride sous forme d'une API Serverless sur Azure Functions. Ce choix garantit que l'infrastructure "scale" automatiquement avec le trafic tout en minimisant les coûts.
+* Pour la visualisation, j'ai développé une interface moderne avec Streamlit.
+* *(Si tu montres le schéma)* : Comme vous le voyez sur ce schéma, le Front communique avec l'API, qui télécharge ses matrices directement depuis le Blob Storage au démarrage.
+* Pour ce MVP, l'upload des matrices dans le Blob Storage a été fait manuellement après l'entraînement sur ma machine.
+* Une fonctionnalité clé de l'interface est sa résilience : si l'API tombe en panne, le Front bascule sur un plan de secours et affiche les articles tendances. L'utilisateur n'est jamais face à un écran vide.
+
+**Comment dessiner le schéma**
+
+💻 Boîte 1 : L'Utilisateur (Flèche vers la boîte 2)
+🖥️ Boîte 2 : Front-End (Streamlit) (Hébergé en local). (Flèche "Requête HTTP / JSON" vers la boîte 3)
+⚙️ Boîte 3 : Back-End / API (Azure Functions) (Sur le cloud). (Flèche "Téléchargement au démarrage" vers la boîte 4)
+🗄️ Boîte 4 : Base de Données (Azure Blob Storage) (Contient tes fichiers .npy et .pkl).
+
 
 ---
 
-## Slide 6 : Conclusion & Perspectives
-**Ce qu'il faut dire :**
-> "En conclusion, l'objectif du MVP est atteint. Le modèle hybride tire parti du meilleur des mondes : la précision du collaboratif, la réactivité du sémantique, et la sécurité de la popularité.
-> 
-> Pour aller plus loin, les prochaines étapes seraient d'intégrer des features temporelles (par exemple, vérifier si l'utilisateur lit des sujets différents le matin et le soir). 
-> Il faudrait également passer d'une API REST classique à une architecture orientée événements (avec Kafka par exemple), pour que le profil de l'utilisateur se mette à jour en temps réel dès sa première seconde de navigation.
-> 
-> Je vous remercie pour votre attention et je suis prêt à répondre à vos questions."
+## Slide 6 : Architecture Cible & Perspectives
+
+**Contenu affiché sur la Slide :**
+* Objectif atteint : Moteur hybride précis, réactif et sécurisé.
+* Passage à l'échelle *(Insérer le Schéma de l'Architecture Cible)* :
+  * Automatisation de l'entraînement (Azure Data Factory).
+* Perspectives d'évolution :
+  * Intégration de features temporelles (Matin vs Soir).
+  * Architecture orientée événements (Kafka) pour le temps réel.
+
+**Speech (À dire à l'oral) :**
+* En conclusion, l'objectif du MVP est atteint avec ce modèle hybride très complet.
+* Pour le passage à l'échelle de l'entreprise, *(Pointer le schéma)* j'ai conçu une architecture cible séparant le code de la donnée.
+* Côté code, une pipeline CI/CD classique (ex: GitHub Actions) mettra à jour l'API.
+* Côté donnée (MLOps), nous prévoyons l'automatisation du ré-entraînement quotidien des matrices via Azure Data Factory. Cet orchestrateur lancera l'entraînement la nuit et écrasera automatiquement les anciens fichiers du Blob Storage, sans avoir besoin de toucher au code de l'API.
+* Pour aller encore plus loin, nous pourrions intégrer des informations temporelles, car un utilisateur ne lit pas la même chose à 8h et à 22h.
+* Enfin, passer d'une API classique à une architecture événementielle avec Kafka permettrait de mettre à jour le profil de l'utilisateur dès sa toute première seconde de navigation.
+* Je vous remercie pour votre attention et je suis prêt à répondre à vos questions.
+
+
+**Comment déssiner le schéma cible**
+
+*Au centre et à droite, on garde le MVP (mais on rajoute la CI/CD logicielle) :*
+📱 **Boîte 1 : Front-End (Streamlit)** ➔ ⚙️ **Boîte 2 : API Azure Functions** ➔ 🗄️ **Boîte 3 : Azure Blob Storage**
+🐙 **Boîte 4 : GitHub Actions (CI/CD Code)** ➔ *(Flèche de mise à jour)* ➔ **Boîte 2 (API)**
+
+*À gauche, on rajoute toute l'usine de ré-entraînement (La vraie nouveauté !) :*
+📰 **Boîte 5 : Nouveaux Clics & Nouveaux Articles (Logs de GloboNews)** ➔ *(Flèche de collecte quotidienne)* ➔ 💾 **Boîte 6 : Data Lake / Base de Données brute**
+🤖 **Boîte 7 : Azure Machine Learning / Databricks (L'usine d'entraînement qui fait tourner ton Notebook)**. *(Cette boîte lit la Boîte 6, entraîne le modèle, et envoie une flèche "Upload Automatique" vers la Boîte 3 "Blob Storage")*
+⏱️ **Boîte 8 : Azure Data Factory (L'Orchestrateur)**. *(Une flèche avec une horloge "Tous les jours à 3h du matin" qui pointe vers la Boîte 7 pour la déclencher)*.
+
+
+
+
+## Slide : Conclusions
+
+- recap sur le plan d'action
+- expliquer que chaque approche a ses avantages et ses inconvénients
+- le choix du meilleur algorithme peut dépendre bcp des données (comme la par exemple la plus des users plus de 2 clicks et qui fait que l'ALS bcp avantagé malgrés ça on gagné legerement en perf grace à l'hybride qui est capable de gerer tous les cas)
+
+- Notre preuve de concept prouve à qu'on est capable de passer à une echelle de production en suivant les perspectives citées.

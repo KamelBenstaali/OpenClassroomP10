@@ -13,6 +13,8 @@ Le projet se décompose en 3 grandes briques :
 
 Le projet est organisé selon l'arborescence suivante :
 
+- **`Data/`** : Ce dossier contient les jeux de données bruts et traités nécessaires au projet (historique de clics, informations sur les articles, embeddings pré-calculés, etc.).
+- **`Generated/`** : Dossier utilisé pour stocker les fichiers ou les modèles générés automatiquement lors des différentes étapes d'entraînement (matrices ALS, objets PCA, dictionnaires).
 - **`AzureAPI/`** : Code source de l'API Serverless (Azure Functions). Contient le fichier `function_app.py` et le dossier `data/` abritant les matrices du modèle (Numpy/Pickle).
 - **`Frontend/`** : Code source de l'interface utilisateur web développée avec `streamlit_app.py`.
 - **`.github/workflows/`** : Pipeline CI/CD (GitHub Actions) pour le déploiement continu automatisé vers Microsoft Azure.
@@ -20,7 +22,7 @@ Le projet est organisé selon l'arborescence suivante :
 - **`Guides/`** : Documentation et tutoriels techniques pour le déploiement et la gestion d'Azure Functions.
 - **`Détails_mission/`** : Documentation concernant les spécifications initiales et le périmètre du projet.
 
-*(Note : Les dossiers `Data/` et `Generated/` contenant les datasets lourds bruts sont exclus de Git via le `.gitignore`, tout comme les environnements virtuels `.venv`).*
+*(Note : Les environnements virtuels `.venv` sont exclus de Git via le `.gitignore`).*
 
 ## Lancement en Local
 

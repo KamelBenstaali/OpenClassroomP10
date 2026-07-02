@@ -12,16 +12,13 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MinMaxScaler
 from azure.storage.blob import BlobServiceClient
 
-# Modèle de programmation V2
+# Modèle de programmation Python V2
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
-# ==========================================
-# 1. CHARGEMENT GLOBAL DES MODÈLES (COLD START)
-# ==========================================
+# CHARGEMENT GLOBAL DES MODÈLES (COLD START)
 logging.info("Démarrage du Cold Start : Téléchargement des modèles depuis Azure Blob Storage...")
 
 # On récupère la chaîne de connexion depuis les variables d'environnement d'Azure
-# Assure-toi d'ajouter 'AZURE_STORAGE_CONNECTION_STRING' dans ton portail Azure
 CONNECTION_STRING = os.environ.get('AZURE_STORAGE_CONNECTION_STRING')
 CONTAINER_NAME = "models" # Nom du conteneur dans ton Blob Storage
 
@@ -33,6 +30,15 @@ try:
     container_client = blob_service_client.get_container_client(CONTAINER_NAME)
     
     def load_blob_to_memory(blob_name):
+        """
+        Télécharge un fichier depuis l'Azure Blob Storage directement en mémoire RAM.
+        
+        Args:
+            blob_name (str): Le nom du fichier à télécharger.
+            
+        Returns:
+            bytes: Le contenu du fichier sous forme d'octets.
+        """
         logging.info(f"Téléchargement de {blob_name}...")
         return container_client.download_blob(blob_name).readall()
 
@@ -56,7 +62,7 @@ try:
     
     # 3. Content-Based (PCA Embeddings)
     embeddings_pca = pickle.loads(load_blob_to_memory("articles_embeddings_pca.pickle"))
-        
+    
     # 4. Popularité
     popularity_df = pd.read_parquet(io.BytesIO(load_blob_to_memory("articles_popularity_time_decay.parquet")))
     dict_popularity = dict(zip(popularity_df['click_article_id'], popularity_df['time_decay_score']))
@@ -75,12 +81,22 @@ try:
 
     logging.info("✅ Tous les modèles ont été téléchargés en RAM avec succès !")
 except Exception as e:
-    logging.error(f"❌ Erreur critique lors du téléchargement depuis le Blob Storage : {str(e)}")
+    logging.error(f"Erreur critique lors du téléchargement depuis le Blob Storage : {str(e)}")
 
-# ==========================================
-# 2. MOTEURS ISOLÉS
-# ==========================================
+# Fonctions de recommandations de chaque approche
 def get_als_recommendations(user_id, user_history_list, top_n=50):
+    """
+    Génère des recommandations basées sur le filtrage collaboratif (ALS).
+    
+    Args:
+        user_id (int): L'identifiant réel de l'utilisateur.
+        user_history_list (list): Liste des identifiants des articles lus par l'utilisateur.
+        top_n (int): Le nombre maximum d'articles à retourner avant filtrage.
+        
+    Returns:
+        dict: Un dictionnaire {article_id: score} des recommandations générées par ALS.
+              Retourne un dictionnaire vide si l'utilisateur est inconnu (Cold-Start).
+    """
     if user_id not in real_to_internal_user:
         return {}
     internal_user_id = real_to_internal_user[user_id]
@@ -91,37 +107,70 @@ def get_als_recommendations(user_id, user_history_list, top_n=50):
         user_sparse = sparse.csr_matrix((1, num_items))
     else:
         user_sparse = sparse.csr_matrix((np.ones(len(internal_hist)), (np.zeros(len(internal_hist)), internal_hist)), shape=(1, num_items))
-        
+    
     internal_item_ids, scores = model_als.recommend(internal_user_id, user_sparse, N=top_n, filter_already_liked_items=True)
     return {internal_to_real_item[int_id]: float(score) for int_id, score in zip(internal_item_ids, scores)}
 
 def get_content_based_recommendations(user_history_list, top_n=50):
+    """
+    Génère des recommandations sémantiques (Content-Based) basées sur la similarité cosinus.
+    
+    Args:
+        user_history_list (list): Liste des identifiants des articles lus par l'utilisateur.
+        top_n (int): Le nombre maximum d'articles à retourner.
+    
+    Returns:
+        dict: Un dictionnaire {article_id: score} des articles les plus similaires 
+              au dernier article lu par l'utilisateur.
+              Retourne un dictionnaire vide si l'historique est vide.
+    """
     if not user_history_list:
         return {} 
     last_article_id = user_history_list[-1]
     if last_article_id >= len(embeddings_pca):
         return {}
-        
+    
     target_vector = embeddings_pca[last_article_id].reshape(1, -1)
     similarities = cosine_similarity(target_vector, embeddings_pca)[0]
     top_indices = np.argsort(similarities)[::-1][1:top_n+1]
     return {idx: float(score) for idx, score in zip(top_indices, similarities[top_indices])}
 
 def get_popularity_recommendations(top_n=50):
+    """
+    Génère des recommandations basées sur la popularité globale (Fallback).
+    Utilise un score pondéré par un déclin temporel (Time Decay).
+    
+    Args:
+        top_n (int): Le nombre d'articles tendance à retourner.
+    
+    Returns:
+        dict: Un dictionnaire {article_id: score} des articles les plus populaires.
+    """
     sorted_pop = sorted(dict_popularity.items(), key=lambda item: item[1], reverse=True)
     return dict(sorted_pop[:top_n])
 
-# ==========================================
-# 3. ROUTE HTTP PRINCIPALE
-# ==========================================
+# ROUTE HTTP PRINCIPALE
 @app.route(route="recommend", auth_level=func.AuthLevel.ANONYMOUS)
 def recommend(req: func.HttpRequest) -> func.HttpResponse:
+    """
+    Point d'entrée principal de l'API Azure Function.
+
+    Traite la requête HTTP, récupère le 'user_id', exécute les trois algorithmes 
+    (ALS, CB, Popularité), hybride leurs scores, exclut les articles déjà lus, 
+    et renvoie le top des recommandations au format JSON.
+    
+    Args:
+        req (func.HttpRequest): L'objet de la requête HTTP contenant les paramètres.
+    
+    Returns:
+        func.HttpResponse: La réponse HTTP contenant un payload JSON avec les recommandations.
+    """
     logging.info('Nouvelle requête de recommandation reçue.')
 
     user_id_param = req.params.get('user_id')
     if not user_id_param:
         return func.HttpResponse(json.dumps({"error": "Veuillez fournir un paramètre 'user_id'"}), status_code=400, mimetype="application/json")
-        
+    
     try:
         user_id = int(user_id_param)
     except ValueError:
@@ -161,11 +210,11 @@ def recommend(req: func.HttpRequest) -> func.HttpResponse:
     if df_recs['score_als'].max() > 0: df_recs['score_als'] = scaler.fit_transform(df_recs[['score_als']])
     if df_recs['score_cb'].max() > 0: df_recs['score_cb'] = scaler.fit_transform(df_recs[['score_cb']])
     if df_recs['score_pop'].max() > 0: df_recs['score_pop'] = scaler.fit_transform(df_recs[['score_pop']])
-        
+    
     # Ajustement des poids si ALS est silencieux (Nouvel utilisateur)
     w_cb = WEIGHT_CB + WEIGHT_ALS if not als_recs else WEIGHT_CB
     w_als = 0.0 if not als_recs else WEIGHT_ALS
-        
+    
     df_recs['score_hybrid'] = (df_recs['score_als'] * w_als) + (df_recs['score_cb'] * w_cb) + (df_recs['score_pop'] * WEIGHT_POP)
     df_recs = df_recs.sort_values('score_hybrid', ascending=False)
     
