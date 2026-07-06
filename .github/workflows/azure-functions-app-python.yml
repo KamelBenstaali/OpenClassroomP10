@@ -42,6 +42,20 @@ jobs:
         pip install -r requirements.txt --target=".python_packages/lib/site-packages"
         popd
 
+    - name: 'Run Automated Tests (Pytest)'
+      # 🧪 Étape 3.5 : Valider le code localement avant d'autoriser le déploiement vers Azure
+      shell: bash
+      env:
+        # Import du secret défini dans GitHub Settings > Secrets
+        AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        # Dire à Python où chercher les dépendances installées par Azure
+        PYTHONPATH: ./${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/.python_packages/lib/site-packages
+      run: |
+        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        pip install pytest requests
+        pytest .
+        popd
+
     - name: 'Login to Azure'
       # 🔑 Étape 4 : Authentification sécurisée sur Azure via un secret stocké dans les settings GitHub
       uses: azure/login@v2

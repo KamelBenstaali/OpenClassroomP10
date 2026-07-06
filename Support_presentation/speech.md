@@ -26,9 +26,7 @@ Pour chaque slide, tu trouveras ce que tu dois **écrire sur la présentation** 
     - Comment les coefficients des approches ont été choisies
     - performances
 
-
-
-- Architecture Technique & Démonstration
+- Architecture Technique & Démonstration (MVP)
   - Back-End : API Serverless (Azure Functions) -> Scalabilité & Coûts réduits.
   - Front-End : Application Streamlit moderne.
   - Résilience : Système de Fallback intégré en cas de panne de l'API.

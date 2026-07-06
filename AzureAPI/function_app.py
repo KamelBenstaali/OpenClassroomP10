@@ -35,7 +35,7 @@ try:
         
         Args:
             blob_name (str): Le nom du fichier à télécharger.
-            
+    
         Returns:
             bytes: Le contenu du fichier sous forme d'octets.
         """

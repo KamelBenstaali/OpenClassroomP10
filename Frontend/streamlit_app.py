@@ -1,5 +1,7 @@
 import streamlit as st
 import requests
+import pandas as pd
+import os
 
 # Configuration de la page
 st.set_page_config(
@@ -77,6 +79,16 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Chargement des métadonnées des articles en cache pour être rapide
+@st.cache_data
+def load_metadata():
+    metadata_path = "../Data/news-portal-user-interactions-by-globocom/articles_metadata.csv"
+    if os.path.exists(metadata_path):
+        return pd.read_csv(metadata_path, usecols=['article_id', 'category_id'])
+    return pd.DataFrame(columns=['article_id', 'category_id'])
+
+metadata_df = load_metadata()
+
 # En-tête
 st.markdown('<h1 class="main-title">GloboNews AI</h1>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Votre moteur de recommandation intelligent</p>', unsafe_allow_html=True)
@@ -84,19 +96,14 @@ st.markdown('<p class="subtitle">Votre moteur de recommandation intelligent</p>'
 # L'URL de production publique sur Azure Functions
 API_URL = "https://globonews-api-p10-evg7eza5gqfnendh.francecentral-01.azurewebsites.net/api/recommend"
 
-# Liste de profils pour la démo
-demo_users = {
-    "👤 Utilisateur 0 (Profil avec un bel historique)": 0,
-    "👤 Utilisateur 42 (Lecteur intermédiaire)": 42,
-    "👤 Utilisateur 25 (Lecteur occasionnel)": 25,
-    "👻 Nouvel Utilisateur (Cold-Start / Inconnu)": 999999
-}
-
-selected_label = st.selectbox(
-    "Choisissez un profil pour la démonstration :",
-    options=list(demo_users.keys())
+# --- NOUVEAU : Input libre pour le User ID ---
+st.markdown("### 👤 Qui êtes-vous ?")
+user_id = st.number_input(
+    "Saisissez votre ID Utilisateur (ex: 0, 42, 25, ou 999999 pour un nouvel utilisateur) :",
+    min_value=0,
+    value=0,
+    step=1
 )
-user_id = demo_users[selected_label]
 
 # Bouton déclencheur
 if st.button("🚀 Découvrir mes recommandations"):
@@ -118,10 +125,15 @@ if st.button("🚀 Découvrir mes recommandations"):
                     score = item.get("score")
                     percent = round(score * 100, 1)
                     
+                    # Recherche de la catégorie dans les métadonnées
+                    cat_match = metadata_df[metadata_df['article_id'] == art_id]
+                    cat_id = cat_match['category_id'].values[0] if not cat_match.empty else "Inconnue"
+                    
                     st.markdown(f"""
                         <div class="article-card">
                             <h3 style="margin-top:0; margin-bottom:5px; color:#2c3e50;">📰 Article n°{art_id}</h3>
-                            <p style="color:#666; margin:0;">Sélectionné par le modèle | Pertinence : {percent}%</p>
+                            <p style="color:#FF416C; font-weight:500; margin-bottom:5px;">🏷️ Catégorie : {cat_id}</p>
+                            <p style="color:#666; margin:0;">Pertinence : {percent}%</p>
                         </div>
                     """, unsafe_allow_html=True)
             else:
@@ -135,9 +147,14 @@ if st.button("🚀 Découvrir mes recommandations"):
             popular_fallback = [160974, 336221, 272143, 234698, 96210]
             
             for i, art_id in enumerate(popular_fallback):
+                    # Recherche de la catégorie pour le fallback aussi
+                    cat_match = metadata_df[metadata_df['article_id'] == art_id]
+                    cat_id = cat_match['category_id'].values[0] if not cat_match.empty else "Inconnue"
+                    
                     st.markdown(f"""
                         <div class="article-card">
                             <h3 style="margin-top:0; margin-bottom:5px; color:#2c3e50;">🔥 Article n°{art_id} (Tendance)</h3>
+                            <p style="color:#FF416C; font-weight:500; margin-bottom:5px;">🏷️ Catégorie : {cat_id}</p>
                             <p style="color:#666; margin:0;">Sélectionné via la Popularité (Time Decay) | Score d'engagement : Top {i+1}</p>
                         </div>
                     """, unsafe_allow_html=True)

@@ -73,5 +73,5 @@ Gestion consommation Azure
 Attention : Veillez à couper les services Azure quand vous avez fini de les utiliser, sous peine d’être débité. OpenClassrooms ne pourra être tenu responsable de l'utilisation des comptes Azure personnels des étudiants.
 
 Comment utiliser les services gratuits Azure pour ce projet ? 
-* Il est conseillé de créer votre Azure Function directement sur le portail Azure, et de choisir le “plan type” égal à “Consomption(serverless)”, afin d’utiliser l’option gratuite de Service Plan
-* Vous pouvez vérifier quotidiennement la (non) consommation de vos services Azure sur le “Cost Management” accessible via la barre de recherche du portail Azure
+* Il est conseillé de créer votre Azure Function directement sur le portail Azure, et de choisir le “plan type” égal à “Consomption(serverless)”, afin d’utiliser l’option gratuite de Service Plan.
+* Vous pouvez vérifier quotidiennement la (non) consommation de vos services Azure sur le “Cost Management” accessible via la barre de recherche du portail Azure.

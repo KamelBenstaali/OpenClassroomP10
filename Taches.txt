@@ -1,5 +1,15 @@
+
+
+Tests:
+- Ajouter les tests de l'api et du blob
+
+
+
+Caclcul du stockage et ram:
+-tester la fonction: embeddings_pca.nbytes
+
+
 - faire un review finale du code
 - faire un review de la documentation
-- Décider des analyses exploratoires à afficher dans l'UI
-- faire le speech de la présentation
-- préparer la template du powerpoint
+
+- préparer la présentation
