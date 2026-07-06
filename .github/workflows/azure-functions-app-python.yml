@@ -48,10 +48,10 @@ jobs:
       env:
         # Import du secret défini dans GitHub Settings > Secrets
         AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
-        # Dire à Python où chercher les dépendances installées par Azure
-        PYTHONPATH: ./${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/.python_packages/lib/site-packages
       run: |
         pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
         pip install pytest requests
         pytest .
         popd
