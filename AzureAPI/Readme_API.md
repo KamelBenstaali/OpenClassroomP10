@@ -30,3 +30,23 @@ Elle pointe vers un conteneur nommé `models` qui doit contenir les 8 fichiers g
 - `function_app.py` : Le fichier principal contenant la logique métier et le téléchargement Blob.
 - `requirements.txt` : Les dépendances Python (`azure-functions`, `numpy`, `pandas`, `implicit`, `scikit-learn`, `azure-storage-blob`).
 - `host.json` et `local.settings.json` : Fichiers de configuration Azure.
+- `test_api.py` : Tests d'intégration automatisés de la réponse HTTP de l'API.
+- `test_blob.py` : Tests d'infrastructure validant la connexion et l'intégrité du stockage Azure Blob.
+
+## Tests et CI/CD
+L'API est couverte par des tests unitaires et d'intégration utilisant le framework **Pytest**.
+Ces tests vérifient :
+- Que la connexion au Cloud Blob Storage fonctionne et que les 5 fichiers critiques sont présents (`test_blob.py`).
+- Que l'API répond avec le bon code HTTP, gère le Cold-Start correctement, et formate parfaitement son JSON (`test_api.py`).
+
+**Exécuter les tests en local :**
+Pour exécuter les tests depuis votre machine, placez-vous dans le dossier `AzureAPI` et lancez :
+```bash
+pip install pytest requests azure-storage-blob
+pytest .
+```
+*(Note : Le test du Blob sera automatiquement ignoré (Skipped) si la variable `AZURE_STORAGE_CONNECTION_STRING` n'est pas définie dans votre environnement, pour éviter les erreurs lors des développements hors-ligne).*
+
+**Intégration Continue (GitHub Actions) :**
+Ces tests sont intégrés dans le pipeline de déploiement continu (`.github/workflows/azure-functions-app-python.yml`). À chaque modification du dossier `AzureAPI` poussée sur la branche `main`, un serveur Ubuntu télécharge les dépendances et exécute ces tests. 
+Le déploiement vers la production sur Azure n'a lieu que si 100% des tests réussissent, garantissant la fiabilité de l'API.
