@@ -1,13 +1,9 @@
-
-
-Tests:
-- Ajouter les tests de l'api et du blob
-
-
-
 Caclcul du stockage et ram:
--tester la fonction: embeddings_pca.nbytes
+- rerun le notebook 01_collab pour check le stockage
 
+
+- Supprimer le dossier de documentation SOTA et rajouter les explications nécessaires 
+dans les notebooks.
 
 - faire un review finale du code
 - faire un review de la documentation
