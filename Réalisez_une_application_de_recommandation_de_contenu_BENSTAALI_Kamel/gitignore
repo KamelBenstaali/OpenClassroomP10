@@ -1,0 +1,16 @@
+# Environnements virtuels
+.venv/
+venv/
+env/
+__pycache__/
+
+# Fichiers de données (Trop lourds pour GitHub)
+Generated/
+Data/
+AzureAPI/data/
+
+# Fichiers de configuration locale Mac/Azure
+.DS_Store
+local.settings.json
+.vscode/
+globonews-api-P10.PublishSettings

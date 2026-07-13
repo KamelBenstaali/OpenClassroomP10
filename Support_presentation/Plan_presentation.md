@@ -3,9 +3,9 @@
 *Durée visée : Environ 15 à 20 minutes.*
 
 ## 1. Introduction & Contexte (2 min)
-* **L'entreprise :** GloboNews, un portail d'actualité qui souhaite augmenter l'engagement de ses lecteurs.
-* **Le problème :** L'infobésité. Trop d'articles tue la lecture. Si on ne propose pas le bon article au bon moment, le lecteur part.
-* **L'objectif :** Créer un MVP (Minimum Viable Product) d'un moteur de recommandation performant, capable de fournir un Top 5 d'articles pertinents en temps réel.
+* **L'entreprise :** La start-up **My Content** (et non GloboNews qui est juste la source du jeu de données). L'objectif est d'encourager la lecture.
+* **Notre équipe :** Nous sommes les cofondateurs. Je suis le CTO, et je m'adresse à toi, Samia (jouée par le jury), notre CEO.
+* **L'objectif du MVP :** Remplir notre première User Story : *"En tant qu'utilisateur de l'application, je vais recevoir une sélection de cinq articles."* Cela passe par la création d'un moteur de recommandation Serverless (Azure) et d'une application de démonstration.
 
 ## 2. Exploration des Données (EDA) (3 min)
 * Présentation rapide du jeu de données : Des millions de clics et des métadonnées d'articles.
@@ -45,7 +45,7 @@
 
 ## 6. Conclusion et Perspectives (2 min)
 * **Bilan :** Objectif atteint. Le modèle hybride surpasse les modèles isolés, surtout en situation de Cold-Start.
-* **Next Steps :** 
+* **Next Steps :**
   * Intégrer l'heure de la journée (A/B testing pour voir si on lit des choses différentes le matin et le soir).
   * Passer d'une API "Azure Functions" basique à une architecture "Event-Driven" avec Kafka pour mettre à jour les recommandations en temps réel à chaque clic.
 

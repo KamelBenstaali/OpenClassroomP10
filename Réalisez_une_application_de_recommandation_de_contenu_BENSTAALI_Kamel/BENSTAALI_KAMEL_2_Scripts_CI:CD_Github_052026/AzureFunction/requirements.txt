@@ -1,0 +1,8 @@
+azure-functions
+pandas
+numpy
+scipy
+implicit
+scikit-learn
+pyarrow
+azure-storage-blob
